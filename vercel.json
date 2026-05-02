@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/webhook/:path*",
+      "destination": "/notif-api/index.py"
+    }
+  ]
+}

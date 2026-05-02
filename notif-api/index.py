@@ -15,11 +15,13 @@ class NotifPayload(BaseModel):
     status_baru: str
     pesan: str
 
+import os
+
 # Konfigurasi Email (Gunakan App Password Gmail)
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SENDER_EMAIL = "wyandhanupapoy@gmail.com" # Ganti dengan email Anda
-SENDER_PASSWORD = "mrihegzhmujtdsxv"      # Ganti dengan App Password Gmail Anda
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "wyandhanupapoy@gmail.com")
+SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", "mrihegzhmujtdsxv")
 
 def kirim_email(tujuan: str, subjek: str, isi_pesan: str):
     try:
