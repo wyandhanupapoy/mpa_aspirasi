@@ -54,7 +54,7 @@ export async function updateStatus(id_aspirasi: string, status_baru: string, sta
     // Ambil host dari headers untuk menentukan URL webhook secara dinamis
     const host = (await import('next/headers')).headers().get('host');
     const protocol = host?.includes('localhost') ? 'http' : 'https';
-    const WEBHOOK_URL = process.env.NOTIFICATION_WEBHOOK_URL || `${protocol}://${host}/webhook/notify`;
+    const WEBHOOK_URL = process.env.NOTIFICATION_WEBHOOK_URL || `${protocol}://${host}/api/webhook/notify`;
 
     // Kita gunakan await agar Vercel tidak mematikan fungsi sebelum fetch selesai
     await fetch(WEBHOOK_URL, {
