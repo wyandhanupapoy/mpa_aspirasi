@@ -1,4 +1,5 @@
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+import os
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import smtplib
 from email.mime.text import MIMEText
@@ -15,8 +16,6 @@ class NotifPayload(BaseModel):
     status_baru: str
     pesan: str
 
-import os
-
 # Konfigurasi Email (Gunakan App Password Gmail)
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -24,27 +23,34 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL", "wyandhanupapoy@gmail.com")
 SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", "mrihegzhmujtdsxv")
 
 def kirim_email(tujuan: str, subjek: str, isi_pesan: str):
+    print(f"🚀 Memulai pengiriman email ke {tujuan}...")
     try:
         msg = MIMEMultipart()
         msg['From'] = f"MPA HIMAKOM <{SENDER_EMAIL}>"
         msg['To'] = tujuan
         msg['Subject'] = subjek
-
         msg.attach(MIMEText(isi_pesan, 'plain'))
 
+        print(f"Connecting to {SMTP_SERVER}:{SMTP_PORT}...")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.set_debuglevel(1) # Aktifkan log SMTP detail
         server.starttls()
+        
+        print(f"Logging in as {SENDER_EMAIL}...")
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        
+        print("Sending message...")
         server.send_message(msg)
         server.quit()
         print(f"✅ Email berhasil dikirim ke {tujuan}")
     except Exception as e:
-        print(f"❌ Gagal mengirim email: {e}")
+        print(f"❌ Gagal mengirim email: {str(e)}")
+        # Jangan raise exception di sini agar tidak mematahkan alur, cukup log
 
 @app.post("/webhook/notify")
-async def receive_webhook(payload: NotifPayload, background_tasks: BackgroundTasks):
+async def receive_webhook(payload: NotifPayload):
     print("=========================================")
-    print(f"DATA MASUK: {payload}") # <-- Tambahkan baris ini
+    print(f"DATA MASUK: {payload}")
     print("=========================================")
     
     if payload.kontak and "@" in payload.kontak:
@@ -65,9 +71,9 @@ async def receive_webhook(payload: NotifPayload, background_tasks: BackgroundTas
         HIMAKOM POLBAN
         """
         
-        # Eksekusi pengiriman email di background agar tidak memblokir respon ke Next.js
-        background_tasks.add_task(kirim_email, payload.kontak, subjek, isi_email)
-        return {"status": "success", "message": "Email masuk antrean pengiriman"}
+        # Kirim secara sinkron/langsung di serverless agar tidak terhenti saat respon dikirim
+        kirim_email(payload.kontak, subjek, isi_email)
+        return {"status": "success", "message": "Email terkirim"}
     
     return {"status": "ignored", "message": "Kontak bukan email atau kosong"}
 

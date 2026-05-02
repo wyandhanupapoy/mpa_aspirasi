@@ -51,10 +51,13 @@ export async function updateStatus(id_aspirasi: string, status_baru: string, sta
     const namaPelapor = dataPelapor?.nama || (dataPelapor && dataPelapor[0]?.nama) || 'Mahasiswa';
 
     // TODO: Ganti URL ini dengan Endpoint n8n atau FastAPI Anda nanti
-    const WEBHOOK_URL = process.env.NOTIFICATION_WEBHOOK_URL || 'https://contoh-webhook-anda.com/api/notify';
+    // Ambil host dari headers untuk menentukan URL webhook secara dinamis
+    const host = (await import('next/headers')).headers().get('host');
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const WEBHOOK_URL = process.env.NOTIFICATION_WEBHOOK_URL || `${protocol}://${host}/webhook/notify`;
 
-    // Jalankan fetch secara asinkron tanpa harus di-await penuh agar UI admin tidak lag
-    fetch(WEBHOOK_URL, {
+    // Kita gunakan await agar Vercel tidak mematikan fungsi sebelum fetch selesai
+    await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
