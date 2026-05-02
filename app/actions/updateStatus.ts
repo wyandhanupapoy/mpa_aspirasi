@@ -3,12 +3,15 @@
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export async function updateStatus(id_aspirasi: string, status_baru: string, status_lama: string) {
+  if (!supabaseAdmin) throw new Error("Supabase configuration is missing");
   // 1. Update status di tabel aspirasi
   const { error: errUpdate } = await supabaseAdmin
     .from('aspirasi')

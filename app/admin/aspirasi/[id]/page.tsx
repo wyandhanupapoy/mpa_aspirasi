@@ -6,10 +6,14 @@ import StatusUpdater from '@/app/components/StatusUpdater';
 // karena ini adalah dynamic route yang butuh data dari Supabase.
 export const dynamic = 'force-dynamic';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Inisialisasi client secara aman. Jika env var kosong, client akan null 
+// sehingga tidak menyebabkan crash saat 'module evaluation' di Vercel build.
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 // Ubah tipe data params menjadi Promise
 export default async function DetailAspirasi({ 
@@ -19,6 +23,10 @@ export default async function DetailAspirasi({
 }) {
   // 1. Bongkar (unwrap) params menggunakan await sebelum digunakan
   const { id } = await params;
+
+  if (!supabaseAdmin) {
+    return <div className="p-8 text-center text-red-500 font-bold">Error: Supabase configuration is missing.</div>;
+  }
 
   // 2. Ambil Data Aspirasi beserta Pelapor dan Kategori
   const { data: aspirasi, error: errAspirasi } = await supabaseAdmin

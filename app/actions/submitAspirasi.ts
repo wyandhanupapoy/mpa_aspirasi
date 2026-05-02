@@ -4,12 +4,15 @@ import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
 // Inisialisasi Supabase Admin (Bypass RLS khusus untuk fungsi Server Backend)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export async function submitAspirasi(formData: FormData) {
+  if (!supabaseAdmin) throw new Error("Supabase configuration is missing");
   const nim = formData.get('nim') as string;
   const nama = formData.get('nama') as string;
   const kontak = formData.get('kontak') as string;

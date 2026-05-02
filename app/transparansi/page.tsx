@@ -4,12 +4,19 @@ import { createClient } from '@supabase/supabase-js';
 // dan memastikan statistik yang ditampilkan selalu real-time.
 export const dynamic = 'force-dynamic';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Inisialisasi client secara aman
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export default async function TransparansiPublik() {
+  if (!supabaseAdmin) {
+    return <div className="p-8 text-center text-red-500 font-bold">Error: Supabase configuration is missing.</div>;
+  }
+
   // 1. Ambil semua data aspirasi untuk dihitung statistiknya
   const { data: semuaAspirasi } = await supabaseAdmin
     .from('aspirasi')

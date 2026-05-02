@@ -5,13 +5,19 @@ import { createClient } from '@supabase/supabase-js';
 // dan memastikan data yang ditampilkan selalu terbaru (bukan hasil cache build).
 export const dynamic = 'force-dynamic';
 
-// Menggunakan Service Role Key di Server Component agar bisa membaca semua data
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Inisialisasi client secara aman
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export default async function AdminDashboard() {
+  if (!supabaseAdmin) {
+    return <div className="p-8 text-center text-red-500 font-bold">Error: Supabase configuration is missing.</div>;
+  }
+
   // Mengambil data aspirasi dan melakukan JOIN ke tabel pelapor & kategori
   const { data: daftarAspirasi, error } = await supabaseAdmin
     .from('aspirasi')
