@@ -2,6 +2,10 @@ import PriorityScoring from '@/app/components/PriorityScoring';
 import { createClient } from '@supabase/supabase-js';
 import StatusUpdater from '@/app/components/StatusUpdater';
 
+// Paksa halaman ini menjadi dynamic agar tidak error saat 'npm run build'
+// karena ini adalah dynamic route yang butuh data dari Supabase.
+export const dynamic = 'force-dynamic';
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -63,7 +67,7 @@ export default async function DetailAspirasi({
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold text-gray-500 mb-1">Status Saat Ini</div>
-                  <StatusUpdater idAspirasi="{aspirasi.id_aspirasi}" statusSaatIni="{aspirasi.status_current}"/>
+                  <StatusUpdater idAspirasi={aspirasi.id_aspirasi} statusSaatIni={aspirasi.status_current}/>
                 </div>
               </div>
               <div className="prose max-w-none bg-gray-50 p-4 rounded-lg border border-gray-100">
@@ -139,4 +143,4 @@ export default async function DetailAspirasi({
       </div>
     </main>
   );
-}
+}

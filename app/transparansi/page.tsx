@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Paksa halaman ini menjadi dynamic agar tidak error saat 'npm run build'
+// dan memastikan statistik yang ditampilkan selalu real-time.
+export const dynamic = 'force-dynamic';
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!

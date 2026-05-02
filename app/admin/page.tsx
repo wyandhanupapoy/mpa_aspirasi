@@ -1,6 +1,10 @@
 import StatusUpdater from '../components/StatusUpdater';
 import { createClient } from '@supabase/supabase-js';
 
+// Paksa halaman ini menjadi dynamic agar tidak error saat 'npm run build'
+// dan memastikan data yang ditampilkan selalu terbaru (bukan hasil cache build).
+export const dynamic = 'force-dynamic';
+
 // Menggunakan Service Role Key di Server Component agar bisa membaca semua data
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
